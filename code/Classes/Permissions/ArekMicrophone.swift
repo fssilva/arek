@@ -23,39 +23,39 @@
 //  THE SOFTWARE.
 //
 
-import Foundation
 import AVFoundation
+import Foundation
 
 open class ArekMicrophone: ArekBasePermission, ArekPermissionProtocol {
-    public var identifier: String = "ArekMicrophone"
-    
-    public init() {
-        super.init(identifier: self.identifier)
+  public var identifier: String = "ArekMicrophone"
+
+  public init() {
+    super.init(identifier: self.identifier)
+  }
+
+  public override init(configuration: ArekConfiguration? = nil, initialPopupData: ArekPopupData? = nil, reEnablePopupData: ArekPopupData? = nil) {
+    super.init(configuration: configuration, initialPopupData: initialPopupData, reEnablePopupData: reEnablePopupData)
+  }
+
+  open func status(completion: @escaping ArekPermissionResponse) {
+    switch AVAudioSession.sharedInstance().recordPermission() {
+    case AVAudioSessionRecordPermission.denied:
+      return completion(.denied)
+    case AVAudioSessionRecordPermission.undetermined:
+      return completion(.notDetermined)
+    case AVAudioSessionRecordPermission.granted:
+      return completion(.authorized)
     }
-    
-    public override init(configuration: ArekConfiguration? = nil, initialPopupData: ArekPopupData? = nil, reEnablePopupData: ArekPopupData? = nil) {
-        super.init(configuration: configuration, initialPopupData: initialPopupData, reEnablePopupData: reEnablePopupData)
+  }
+
+  open func askForPermission(completion: @escaping ArekPermissionResponse) {
+    AVAudioSession.sharedInstance().requestRecordPermission { granted in
+      if granted {
+        print("[🚨 Arek 🚨] 🎤 permission authorized by user ✅")
+        return completion(.authorized)
+      }
+      print("[🚨 Arek 🚨] 🎤 permission denied by user ⛔️")
+      return completion(.denied)
     }
-    
-    open func status(completion: @escaping ArekPermissionResponse) {
-        switch AVAudioSession.sharedInstance().recordPermission() {
-        case AVAudioSessionRecordPermission.denied:
-            return completion(.denied)
-        case AVAudioSessionRecordPermission.undetermined:
-            return completion(.notDetermined)
-        case AVAudioSessionRecordPermission.granted:
-            return completion(.authorized)
-        }
-    }
-        
-    open func askForPermission(completion: @escaping ArekPermissionResponse) {
-        AVAudioSession.sharedInstance().requestRecordPermission { (granted) in
-            if granted {
-                print("[🚨 Arek 🚨] 🎤 permission authorized by user ✅")
-                return completion(.authorized)
-            }
-            print("[🚨 Arek 🚨] 🎤 permission denied by user ⛔️")
-            return completion(.denied)
-        }
-    }
+  }
 }

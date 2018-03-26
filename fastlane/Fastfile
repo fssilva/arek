@@ -1,0 +1,20 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+
+update_fastlane
+setup_travis
+
+default_platform(:ios)
+
+platform :ios do
+  desc "Building Arek"
+  lane :build do
+    clear_derived_data
+    xcodebuild
+  end
+end

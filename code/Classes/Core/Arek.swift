@@ -108,7 +108,7 @@ open class ArekBasePermission {
       alert.dismiss(animated: true, completion: nil)
     }
 
-    let deny = UIAlertAction(title: denyButtonTitle, style: .cancel) { _ in
+    let deny = UIAlertAction(title: denyButtonTitle, style: .default) { _ in
       completion(.denied)
       alert.dismiss(animated: true, completion: nil)
     }

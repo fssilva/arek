@@ -1,0 +1,13 @@
+os: osx
+
+osx_image: xcode9.2
+
+cache:
+  - bundler
+
+branches:
+  only:
+    - master
+
+script:
+  - "bundle exec fastlane build"

@@ -3,12 +3,6 @@
 </p>
 <br />
 
-![Platform Version](https://cocoapod-badges.herokuapp.com/p/arek/badge.png)
-![Pod Version](https://cocoapod-badges.herokuapp.com/v/arek/0.0.6/badge.png)
-[![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
-![License](https://cocoapod-badges.herokuapp.com/l/arek/badge.png)
-[![Swift Version](https://img.shields.io/badge/Swift-3.0.x-orange.svg)]()
-
 AREK is a clean and easy to use wrapper over any kind of iOS permission written in Swift.
 
 Why AREK could help you building a better app is well described by Apple <a href="https://developer.apple.com/ios/human-interface-guidelines/interaction/requesting-permission/">here</a>:
@@ -29,13 +23,6 @@ Every goal could be easily reached using **AREK**.
 * manage through an easy configuration how many times to ask the user to re-enable the permission (Only once, every hour, once a day, weekly, always😷)
 
 🚨 AREK is a **Swift 4** and **XCode 9** compatible project 🚨
-
-## Build Status
-
-| Branch | Status |
-| ------------- | ------------- |
-| Master | [![BuddyBuild](https://dashboard.buddybuild.com/api/statusImage?appID=59a16154a7ae7b000183f1cf&branch=master&build=latest)](https://dashboard.buddybuild.com/apps/59a16154a7ae7b000183f1cf/build/latest?branch=master) |
-| Develop | [![BuddyBuild](https://dashboard.buddybuild.com/api/statusImage?appID=59a16154a7ae7b000183f1cf&branch=master&build=latest)](https://dashboard.buddybuild.com/apps/59a16154a7ae7b000183f1cf/build/latest?branch=develop) |
 
 # Table of Contents
 1. [Implemented permissions](#implementedPermissions)

@@ -24,13 +24,6 @@ Every goal could be easily reached using **AREK**.
 
 🚨 AREK is a **Swift 4** and **XCode 9** compatible project 🚨
 
-## Build Status
-
-| Branch | Status |
-| ------------- | ------------- |
-| Master | [![BuddyBuild](https://dashboard.buddybuild.com/api/statusImage?appID=59a16154a7ae7b000183f1cf&branch=master&build=latest)](https://dashboard.buddybuild.com/apps/59a16154a7ae7b000183f1cf/build/latest?branch=master) |
-| Develop | [![BuddyBuild](https://dashboard.buddybuild.com/api/statusImage?appID=59a16154a7ae7b000183f1cf&branch=master&build=latest)](https://dashboard.buddybuild.com/apps/59a16154a7ae7b000183f1cf/build/latest?branch=develop) |
-
 # Table of Contents
 1. [Implemented permissions](#implementedPermissions)
 2. [How to use AREK](#howTo)

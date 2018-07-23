@@ -1,6 +1,6 @@
 //
-//  ArekNotifications.swift
-//  arek
+//  ArekMicrophone.swift
+//  Arek
 //
 //  Copyright (c) 2016 Ennio Masi
 //
@@ -23,54 +23,39 @@
 //  THE SOFTWARE.
 //
 
+import AVFoundation
 import Foundation
-import UIKit
-import UserNotifications
 
-open class ArekNotifications: ArekBasePermission, ArekPermissionProtocol {
-  open var identifier: String = "ArekNotifications"
+open class MicrophonePermission: BasePermission, PermissionProtocol {
+  public var identifier: String = "MicrophonePermission"
 
   public init() {
     super.init(identifier: self.identifier)
   }
 
-  public override init(configuration: ArekConfiguration? = nil, initialPopupData: ArekPopupData? = nil, reEnablePopupData: ArekPopupData? = nil) {
+  public override init(configuration: ArekConfiguration? = nil, initialPopupData: PopupAlertData? = nil, reEnablePopupData: PopupAlertData? = nil) {
     super.init(configuration: configuration, initialPopupData: initialPopupData, reEnablePopupData: reEnablePopupData)
   }
 
   open func status(completion: @escaping ArekPermissionResponse) {
-    UNUserNotificationCenter.current().getNotificationSettings { settings in
-      switch settings.authorizationStatus {
-      case .notDetermined:
-        return completion(.notDetermined)
-      case .denied:
-        return completion(.denied)
-      case .authorized:
-        return completion(.authorized)
-      }
+    switch AVAudioSession.sharedInstance().recordPermission() {
+    case AVAudioSessionRecordPermission.denied:
+      return completion(.denied)
+    case AVAudioSessionRecordPermission.undetermined:
+      return completion(.notDetermined)
+    case AVAudioSessionRecordPermission.granted:
+      return completion(.authorized)
     }
   }
 
   open func askForPermission(completion: @escaping ArekPermissionResponse) {
-    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
-      if let error = error {
-        print("[🚨 Arek 🚨] Push notifications permission not determined 🤔, error: \(error)")
-        return completion(.notDetermined)
-      }
+    AVAudioSession.sharedInstance().requestRecordPermission { granted in
       if granted {
-        self.registerForRemoteNotifications()
-
-        print("[🚨 Arek 🚨] Push notifications permission authorized by user ✅")
+        print("[🚨 Arek 🚨] 🎤 permission authorized by user ✅")
         return completion(.authorized)
       }
-      print("[🚨 Arek 🚨] Push notifications permission denied by user ⛔️")
+      print("[🚨 Arek 🚨] 🎤 permission denied by user ⛔️")
       return completion(.denied)
-    }
-  }
-
-  fileprivate func registerForRemoteNotifications() {
-    DispatchQueue.main.async {
-      UIApplication.shared.registerForRemoteNotifications()
     }
   }
 }

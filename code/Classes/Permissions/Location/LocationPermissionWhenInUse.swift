@@ -1,5 +1,5 @@
 //
-//  ArekLocationAlways.swift
+//  ArekLocationWhenInUse.swift
 //  Arek
 //
 //  Copyright (c) 2016 Ennio Masi
@@ -26,23 +26,22 @@
 import Foundation
 import CoreLocation
 
-final public class ArekLocationAlways: ArekBaseLocation {
-    
+final public class LocationPermissionWhenInUse: BaseLocation {
     override public init() {
-        let identifier = "ArekLocationAlways"
+        let identifier = "LocationPermissionWhenInUse"
         super.init(identifier: identifier)
         
         self.identifier = identifier
     }
     
-    public override init(configuration: ArekConfiguration? = nil, initialPopupData: ArekPopupData? = nil, reEnablePopupData: ArekPopupData? = nil) {
+    public override init(configuration: ArekConfiguration? = nil, initialPopupData: PopupAlertData? = nil, reEnablePopupData: PopupAlertData? = nil) {
         super.init(configuration: configuration, initialPopupData: initialPopupData, reEnablePopupData: reEnablePopupData)
         
-        self.identifier = "ArekLocationAlways"
+        self.identifier = "LocationPermissionWhenInUse"
     }
     
     override public func askForPermission(completion: @escaping ArekPermissionResponse) {
         self.completion = completion
-        self.requestAlwaysAuthorization()
+        self.requestWhenInUseAuthorization()
     }
 }

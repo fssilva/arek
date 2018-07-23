@@ -1,5 +1,5 @@
 //
-//  ArekHealth.swift
+//  ArekContacts.swift
 //  Arek
 //
 //  Copyright (c) 2016 Ennio Masi
@@ -24,56 +24,44 @@
 //
 
 import Foundation
-import HealthKit
+import Contacts
 
-open class ArekHealth: ArekBasePermission, ArekPermissionProtocol {
-    
-    public var identifier: String = "ArekHealth"
-    
-    var hkObjectType: HKObjectType?
-    var hkSampleTypesToShare: Set<HKSampleType>?
-    var hkSampleTypesToRead: Set<HKSampleType>?
-    
+open class ContactsPermission: BasePermission, PermissionProtocol {
+    open var identifier: String = "ContactsPermission"
+
     public init() {
         super.init(identifier: self.identifier)
     }
     
-    public override init(configuration: ArekConfiguration? = nil, initialPopupData: ArekPopupData? = nil, reEnablePopupData: ArekPopupData? = nil) {
+    public override init(configuration: ArekConfiguration? = nil, initialPopupData: PopupAlertData? = nil, reEnablePopupData: PopupAlertData? = nil) {
         super.init(configuration: configuration, initialPopupData: initialPopupData, reEnablePopupData: reEnablePopupData)
     }
-
+    
     open func status(completion: @escaping ArekPermissionResponse) {
-        guard let objectType = self.hkObjectType else {
-            return completion(.notDetermined)
-        }
-        
-        switch HKHealthStore().authorizationStatus(for: objectType) {
+        switch Contacts.CNContactStore.authorizationStatus(for: CNEntityType.contacts) {
+        case .authorized:
+            return completion(.authorized)
+        case .denied, .restricted:
+            return completion(.denied)
         case .notDetermined:
             return completion(.notDetermined)
-        case .sharingDenied:
-            return completion(.denied)
-        case .sharingAuthorized:
-            return completion(.authorized)
         }
     }
-        
+    
     open func askForPermission(completion: @escaping ArekPermissionResponse) {
-        if self.hkSampleTypesToRead == nil && self.hkSampleTypesToShare == nil {
-            print("[🚨 Arek 🚨] 📈 no permissions specified 🤔")
-            return completion(.notDetermined)
-        }
-        HKHealthStore().requestAuthorization(toShare: self.hkSampleTypesToShare, read: self.hkSampleTypesToRead) { (granted, error) in
+        Contacts.CNContactStore().requestAccess(for: CNEntityType.contacts, completionHandler: { granted, error in
             if let error = error {
-                print("[🚨 Arek 🚨] 📈 permission not determined 🤔 error: \(error)")
+                print("[🚨 Arek 🚨] 🎫 not determined 🤔 error: \(error)")
                 return completion(.notDetermined)
             }
-            
+
             if granted {
-                print("[🚨 Arek 🚨] 📈 permission authorized by user ✅")
+                print("[🚨 Arek 🚨] 🎫 permission authorized by user ✅")
                 return completion(.authorized)
             }
-            print("[🚨 Arek 🚨] 📈 permission denied by user ⛔️")
+
+            print("[🚨 Arek 🚨] 🎫 denied by user ⛔️")
             return completion(.denied)
-        }
+        })
     }
 }

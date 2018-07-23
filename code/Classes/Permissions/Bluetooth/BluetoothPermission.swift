@@ -1,5 +1,3 @@
-//
-//  ArekReminders.swift
 //  Arek
 //
 //  Copyright (c) 2016 Ennio Masi
@@ -24,43 +22,58 @@
 //
 
 import Foundation
-import EventKit
+import CoreBluetooth
 
-open class ArekReminders: ArekBasePermission, ArekPermissionProtocol {
-    open var identifier: String = "ArekReminders"
-    
+open class BluetoothPermission: BasePermission, PermissionProtocol {
+    open var identifier: String = "BluetoothPermission"
+
+    let bluetooth = BluetoothPermissionDelegate()
+
     public init() {
         super.init(identifier: self.identifier)
     }
     
-    public override init(configuration: ArekConfiguration? = nil, initialPopupData: ArekPopupData? = nil, reEnablePopupData: ArekPopupData? = nil) {
+    public override init(configuration: ArekConfiguration? = nil, initialPopupData: PopupAlertData? = nil, reEnablePopupData: PopupAlertData? = nil) {
         super.init(configuration: configuration, initialPopupData: initialPopupData, reEnablePopupData: reEnablePopupData)
     }
-
+    
     open func status(completion: @escaping ArekPermissionResponse) {
-        let status = EKEventStore.authorizationStatus(for: .reminder)
-        switch status {
-        case .authorized:
-            return completion(.authorized)
+        bluetooth.completion = completion
+        
+        switch CBPeripheralManager.authorizationStatus() {
         case .restricted, .denied:
             return completion(.denied)
-        case .notDetermined:
-            return completion(.notDetermined)
+        case .notDetermined, .authorized:
+            switch bluetooth.bluetoothManager.state {
+            case .unauthorized:
+                return completion(.denied)
+            case .poweredOn:
+                return completion(.authorized)
+            case .unsupported, .poweredOff, .resetting:
+                return completion(.notAvailable)
+            case .unknown:
+                return completion(.notDetermined)
+            }
         }
     }
     
     open func askForPermission(completion: @escaping ArekPermissionResponse) {
-        EKEventStore().requestAccess(to: .reminder) { granted, error in
-            if let error = error {
-                print("[🚨 Arek 🚨] 🎗 permission error: \(error)")
-                return completion(.notDetermined)
-            }
-            if granted {
-                print("[🚨 Arek 🚨] 🎗 permission authorized by user ✅")
-                return completion(.authorized)
-            }
-            print("[🚨 Arek 🚨] 🎗 permission denied by user ⛔️")
+        bluetooth.completion = completion
+        
+        switch bluetooth.bluetoothManager.state {
+        case .unsupported, .poweredOff, .resetting:
+            print("[🚨 Arek 🚨] bluetooth not available 🚫")
+            return completion(.notAvailable)
+        case .unauthorized:
+            print("[🚨 Arek 🚨] bluetooth not authorized by the user ⛔️")
             return completion(.denied)
+        case .unknown:
+            print("[🚨 Arek 🚨] bluetooth could not be determined 🤔")
+            return completion(.notDetermined)
+        case .poweredOn:
+            bluetooth.bluetoothManager?.startAdvertising(nil)
+            bluetooth.bluetoothManager?.stopAdvertising()
+            break
         }
     }
 }

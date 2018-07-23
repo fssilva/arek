@@ -39,12 +39,12 @@ public struct ArekConfiguration {
         self.presentReEnablePopup = presentReEnablePopup
     }
     
-    func reEnablePopupPresented(permission: ArekPermissionProtocol) {
+    func reEnablePopupPresented(permission: PermissionProtocol) {
         UserDefaults.standard.set(Date(), forKey: permission.identifier)
         UserDefaults.standard.synchronize()
     }
     
-    func canPresentReEnablePopup(permission: ArekPermissionProtocol) -> Bool {
+    func canPresentReEnablePopup(permission: PermissionProtocol) -> Bool {
         if !self.presentReEnablePopup {
             return false
         }

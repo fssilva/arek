@@ -28,7 +28,7 @@ import UIKit
 
 public typealias ArekPermissionResponse = (ArekPermissionStatus) -> Void
 
-public protocol ArekPermissionProtocol: class {
+public protocol PermissionProtocol: class {
   var identifier: String { get }
     /**
      This is the key method to know if a permission has been authorized or denied.
@@ -53,22 +53,22 @@ public protocol ArekPermissionProtocol: class {
 
  Don't instantiate ArekBasePermission directly.
  */
-open class ArekBasePermission {
+open class BasePermission {
   var configuration: ArekConfiguration = ArekConfiguration(frequency: .OnceADay,
                                                            presentInitialPopup:
                                                              true,
                                                            presentReEnablePopup: true)
-  var initialPopupData: ArekPopupData = ArekPopupData()
-  var reEnablePopupData: ArekPopupData = ArekPopupData()
+  var initialPopupData: PopupAlertData = PopupAlertData()
+  var reEnablePopupData: PopupAlertData = PopupAlertData()
 
   public init(identifier: String) {
     let data = ArekLocalizationManager(permission: identifier)
 
-    self.initialPopupData = ArekPopupData(title: data.initialTitle,
+    self.initialPopupData = PopupAlertData(title: data.initialTitle,
                                           message: data.initialMessage,
                                           allowButtonTitle: data.allowButtonTitle,
                                           denyButtonTitle: data.denyButtonTitle)
-    self.reEnablePopupData = ArekPopupData(title: data.reEnableTitle,
+    self.reEnablePopupData = PopupAlertData(title: data.reEnableTitle,
                                            message: data.reEnableMessage,
                                            allowButtonTitle: data.allowButtonTitle,
                                            denyButtonTitle: data.denyButtonTitle)
@@ -82,7 +82,7 @@ open class ArekBasePermission {
          - initialPopupData: title and message related to pre-iOS popup
          - reEnablePopupData: title and message related to re-enable permission popup
      */
-  public init(configuration: ArekConfiguration? = nil, initialPopupData: ArekPopupData? = nil, reEnablePopupData: ArekPopupData? = nil) {
+  public init(configuration: ArekConfiguration? = nil, initialPopupData: PopupAlertData? = nil, reEnablePopupData: PopupAlertData? = nil) {
     self.configuration = configuration ?? self.configuration
     self.initialPopupData = initialPopupData ?? self.initialPopupData
     self.reEnablePopupData = reEnablePopupData ?? self.reEnablePopupData
@@ -92,7 +92,7 @@ open class ArekBasePermission {
     if self.configuration.presentInitialPopup {
       self.presentInitialPopup(title: self.initialPopupData.title, message: self.initialPopupData.message, allowButtonTitle: self.initialPopupData.allowButtonTitle, denyButtonTitle: self.initialPopupData.denyButtonTitle, completion: completion)
     } else {
-      (self as? ArekPermissionProtocol)?.askForPermission(completion: completion)
+      (self as? PermissionProtocol)?.askForPermission(completion: completion)
     }
   }
 
@@ -104,7 +104,7 @@ open class ArekBasePermission {
     let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
 
     let allow = UIAlertAction(title: allowButtonTitle, style: .default) { _ in
-      (self as? ArekPermissionProtocol)?.askForPermission(completion: completion)
+      (self as? PermissionProtocol)?.askForPermission(completion: completion)
       alert.dismiss(animated: true, completion: nil)
     }
 
@@ -128,7 +128,7 @@ open class ArekBasePermission {
   }
 
   private func presentReEnablePopup() {
-    guard let permission = self as? ArekPermissionProtocol else { return }
+    guard let permission = self as? PermissionProtocol else { return }
 
     if self.configuration.canPresentReEnablePopup(permission: permission) {
       self.presentReEnablePopup(title: self.reEnablePopupData.title, message: self.reEnablePopupData.message, allowButtonTitle: self.reEnablePopupData.allowButtonTitle, denyButtonTitle: self.reEnablePopupData.denyButtonTitle)
@@ -168,7 +168,7 @@ open class ArekBasePermission {
   }
 
   open func manage(completion: @escaping ArekPermissionResponse) {
-    (self as? ArekPermissionProtocol)?.status { status in
+    (self as? PermissionProtocol)?.status { status in
       self.managePermission(status: status, completion: completion)
     }
   }
@@ -183,6 +183,8 @@ open class ArekBasePermission {
       return completion(.denied)
     case .authorized:
       return completion(.authorized)
+    case .provisional:
+      return completion(.provisional)
     case .notAvailable:
       break
     }

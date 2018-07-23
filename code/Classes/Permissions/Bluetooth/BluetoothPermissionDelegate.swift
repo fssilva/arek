@@ -24,9 +24,9 @@
 import Foundation
 import CoreBluetooth
 
-open class ArekBluetoothDelegate: NSObject, CBPeripheralManagerDelegate {
+open class BluetoothPermissionDelegate: NSObject, CBPeripheralManagerDelegate {
 
-    open var identifier: String = "ArekBluetooth"
+    open var identifier: String = "BluetoothPermission"
     
     internal var bluetoothManager: CBPeripheralManager!
     internal var completion: ArekPermissionResponse?

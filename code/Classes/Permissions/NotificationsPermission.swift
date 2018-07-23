@@ -1,6 +1,6 @@
 //
-//  ArekMicrophone.swift
-//  Arek
+//  ArekNotifications.swift
+//  arek
 //
 //  Copyright (c) 2016 Ennio Masi
 //
@@ -23,39 +23,56 @@
 //  THE SOFTWARE.
 //
 
-import AVFoundation
 import Foundation
+import UIKit
+import UserNotifications
 
-open class ArekMicrophone: ArekBasePermission, ArekPermissionProtocol {
-  public var identifier: String = "ArekMicrophone"
+open class NotificationsPermission: BasePermission, PermissionProtocol {
+  open var identifier: String = "NotificationsPermission"
 
   public init() {
     super.init(identifier: self.identifier)
   }
 
-  public override init(configuration: ArekConfiguration? = nil, initialPopupData: ArekPopupData? = nil, reEnablePopupData: ArekPopupData? = nil) {
+  public override init(configuration: ArekConfiguration? = nil, initialPopupData: PopupAlertData? = nil, reEnablePopupData: PopupAlertData? = nil) {
     super.init(configuration: configuration, initialPopupData: initialPopupData, reEnablePopupData: reEnablePopupData)
   }
 
   open func status(completion: @escaping ArekPermissionResponse) {
-    switch AVAudioSession.sharedInstance().recordPermission() {
-    case AVAudioSessionRecordPermission.denied:
-      return completion(.denied)
-    case AVAudioSessionRecordPermission.undetermined:
-      return completion(.notDetermined)
-    case AVAudioSessionRecordPermission.granted:
-      return completion(.authorized)
+    UNUserNotificationCenter.current().getNotificationSettings { settings in
+      switch settings.authorizationStatus {
+      case .notDetermined:
+        return completion(.notDetermined)
+      case .denied:
+        return completion(.denied)
+      case .authorized:
+        return completion(.authorized)
+      case .provisional:
+        return completion(.provisional)
+      }
     }
   }
 
   open func askForPermission(completion: @escaping ArekPermissionResponse) {
-    AVAudioSession.sharedInstance().requestRecordPermission { granted in
+    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
+      if let error = error {
+        print("[🚨 Arek 🚨] Push notifications permission not determined 🤔, error: \(error)")
+        return completion(.notDetermined)
+      }
       if granted {
-        print("[🚨 Arek 🚨] 🎤 permission authorized by user ✅")
+        self.registerForRemoteNotifications()
+
+        print("[🚨 Arek 🚨] Push notifications permission authorized by user ✅")
         return completion(.authorized)
       }
-      print("[🚨 Arek 🚨] 🎤 permission denied by user ⛔️")
+      print("[🚨 Arek 🚨] Push notifications permission denied by user ⛔️")
       return completion(.denied)
+    }
+  }
+
+  fileprivate func registerForRemoteNotifications() {
+    DispatchQueue.main.async {
+      UIApplication.shared.registerForRemoteNotifications()
     }
   }
 }

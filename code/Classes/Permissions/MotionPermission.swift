@@ -26,8 +26,8 @@
 import Foundation
 import CoreMotion
 
-open class ArekMotion: ArekBasePermission, ArekPermissionProtocol {
-    open var identifier: String = "ArekMotion"
+open class MotionPermission: BasePermission, PermissionProtocol {
+    open var identifier: String = "MotionPermission"
     
     private let userKey = "ennioma.arek.motion.requested"
     private let motionManager = CMMotionActivityManager()
@@ -53,7 +53,7 @@ open class ArekMotion: ArekBasePermission, ArekPermissionProtocol {
         super.init(identifier: self.identifier)
     }
     
-    public override init(configuration: ArekConfiguration? = nil, initialPopupData: ArekPopupData? = nil, reEnablePopupData: ArekPopupData? = nil) {
+    public override init(configuration: ArekConfiguration? = nil, initialPopupData: PopupAlertData? = nil, reEnablePopupData: PopupAlertData? = nil) {
         super.init(configuration: configuration, initialPopupData: initialPopupData, reEnablePopupData: reEnablePopupData)
     }
     

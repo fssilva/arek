@@ -1,5 +1,5 @@
 //
-//  ArekPhoto.swift
+//  ArekMediaLibrary.swift
 //  Arek
 //
 //  Copyright (c) 2016 Ennio Masi
@@ -24,43 +24,53 @@
 //
 
 import Foundation
-import Photos
+import MediaPlayer
 
-open class ArekPhoto: ArekBasePermission, ArekPermissionProtocol {
-    open var identifier: String = "ArekPhoto"
+open class MediaLibraryPermission: BasePermission, PermissionProtocol {
+    open var identifier: String = "MediaLibraryPermission"
     
     public init() {
         super.init(identifier: self.identifier)
     }
     
-    public override init(configuration: ArekConfiguration? = nil, initialPopupData: ArekPopupData? = nil, reEnablePopupData: ArekPopupData? = nil) {
+    public override init(configuration: ArekConfiguration? = nil, initialPopupData: PopupAlertData? = nil, reEnablePopupData: PopupAlertData? = nil) {
         super.init(configuration: configuration, initialPopupData: initialPopupData, reEnablePopupData: reEnablePopupData)
     }
-
+    
     open func status(completion: @escaping ArekPermissionResponse) {
-        switch PHPhotoLibrary.authorizationStatus() {
-        case .notDetermined:
-            return completion(.notDetermined)
-        case .restricted, .denied:
-            return completion(.denied)
-        case.authorized:
-            return completion(.authorized)
+        if #available(iOS 9.3, *) {
+            let status = MPMediaLibrary.authorizationStatus()
+            switch status {
+            case .authorized:
+                return completion(.authorized)
+            case .restricted, .denied:
+                return completion(.denied)
+            case .notDetermined:
+                return completion(.notDetermined)
+            }
+        } else {
+            return completion(.notAvailable)
         }
     }
-        
+    
     open func askForPermission(completion: @escaping ArekPermissionResponse) {
-        PHPhotoLibrary.requestAuthorization { (status) in
-            switch status {
-            case .notDetermined:
-                print("[🚨 Arek 🚨] 🌅 permission not determined 🤔")
-                return completion(.notDetermined)
-            case .restricted, .denied:
-                print("[🚨 Arek 🚨] 🌅 permission denied by user ⛔️")
-                return completion(.denied)
-            case.authorized:
-                print("[🚨 Arek 🚨] 🌅 permission authorized by user ✅")
-                return completion(.authorized)
+        if #available(iOS 9.3, *) {
+            MPMediaLibrary.requestAuthorization { status in
+                switch status {
+                case .authorized:
+                    print("[🚨 Arek 🚨] 💽 permission authorized by user ✅")
+                    return completion(.authorized)
+                case .restricted, .denied:
+                    print("[🚨 Arek 🚨] 💽 permission denied by user ⛔️")
+                    return completion(.denied)
+                case .notDetermined:
+                    print("[🚨 Arek 🚨] 💽 permission not determined 🤔")
+                    return completion(.notDetermined)
+                }
             }
+        } else {
+            print("[🚨 Arek 🚨] 💽 permission denied by iOS ⛔️")
+            return completion(.notAvailable)
         }
     }
 }

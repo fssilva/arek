@@ -1,6 +1,6 @@
 //
-//  ArekBaseLocationDelegate.swift
-//  arek
+//  ArekLocationAlways.swift
+//  Arek
 //
 //  Copyright (c) 2016 Ennio Masi
 //
@@ -26,24 +26,23 @@
 import Foundation
 import CoreLocation
 
-public class ArekBaseLocationDelegate: NSObject, CLLocationManagerDelegate {
-    var locationManager: CLLocationManager = CLLocationManager()
+final public class LocationPermissionAlways: BaseLocation {
     
-    weak var permission: ArekPermissionProtocol?
-    var completion: ArekPermissionResponse?
-    
-    public init(permission: ArekPermissionProtocol, completion: @escaping ArekPermissionResponse) {
-        super.init()
-        self.completion = completion
-        self.permission = permission
-        self.locationManager.delegate = self
+    override public init() {
+        let identifier = "LocationPermissionAlways"
+        super.init(identifier: identifier)
+        
+        self.identifier = identifier
     }
-
-    public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        if let permission = self.permission {
-            permission.status(completion: { (status) in
-                if let completion = self.completion { completion(status) }
-            })
-        }
+    
+    public override init(configuration: ArekConfiguration? = nil, initialPopupData: PopupAlertData? = nil, reEnablePopupData: PopupAlertData? = nil) {
+        super.init(configuration: configuration, initialPopupData: initialPopupData, reEnablePopupData: reEnablePopupData)
+        
+        self.identifier = "LocationPermissionAlways"
+    }
+    
+    override public func askForPermission(completion: @escaping ArekPermissionResponse) {
+        self.completion = completion
+        self.requestAlwaysAuthorization()
     }
 }

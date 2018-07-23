@@ -1,5 +1,5 @@
 //
-//  ArekSpeechRecognizer.swift
+//  ArekEvents.swift
 //  Arek
 //
 //  Copyright (c) 2016 Ennio Masi
@@ -24,22 +24,21 @@
 //
 
 import Foundation
-import Speech
+import EventKit
 
-open class ArekSpeechRecognizer: ArekBasePermission, ArekPermissionProtocol {
-    open var identifier: String = "ArekSpeechRecognizer"
+open class EventsPermission: BasePermission, PermissionProtocol {
+    open var identifier: String = "EventsPermission"
     
     public init() {
         super.init(identifier: self.identifier)
     }
     
-    public override init(configuration: ArekConfiguration? = nil, initialPopupData: ArekPopupData? = nil, reEnablePopupData: ArekPopupData? = nil) {
+    public override init(configuration: ArekConfiguration? = nil, initialPopupData: PopupAlertData? = nil, reEnablePopupData: PopupAlertData? = nil) {
         super.init(configuration: configuration, initialPopupData: initialPopupData, reEnablePopupData: reEnablePopupData)
     }
-
+    
     open func status(completion: @escaping ArekPermissionResponse) {
-        if #available(iOS 10.0, *) {
-            let status = SFSpeechRecognizer.authorizationStatus()
+            let status = EKEventStore.authorizationStatus(for: .event)
             switch status {
             case .authorized:
                 return completion(.authorized)
@@ -48,29 +47,21 @@ open class ArekSpeechRecognizer: ArekBasePermission, ArekPermissionProtocol {
             case .notDetermined:
                 return completion(.notDetermined)
             }
-        } else {
-            return completion(.notAvailable)
-        }
     }
     
     open func askForPermission(completion: @escaping ArekPermissionResponse) {
-        if #available(iOS 10.0, *) {            
-            SFSpeechRecognizer.requestAuthorization { status in
-                switch status {
-                case .authorized:
-                    print("[🚨 Arek 🚨] 🗣 permission authorized by user ✅")
-                    return completion(.authorized)
-                case .restricted, .denied:
-                    print("[🚨 Arek 🚨] 🗣 permission denied by user ⛔️")
-                    return completion(.denied)
-                case .notDetermined:
-                    print("[🚨 Arek 🚨] 🗣 permission not determined 🤔")
+            EKEventStore().requestAccess(to: .event) { granted, error in
+                if let error = error {
+                    print("[🚨 Arek 🚨] 📆 permission not determined 🤔, error \(error)")
                     return completion(.notDetermined)
                 }
+                
+                if granted {
+                    print("[🚨 Arek 🚨] 📆 permission authorized by user ✅")
+                    return completion(.authorized)
+                }
+                print("[🚨 Arek 🚨] 📆 permission denied by user ⛔️")
+                return completion(.denied)
             }
-        } else {
-            print("[🚨 Arek 🚨] 🗣 permission only available from iOS 10 ⛔️")
-            return completion(.notAvailable)
-        }
     }
 }

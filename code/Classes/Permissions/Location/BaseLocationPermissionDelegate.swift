@@ -1,6 +1,6 @@
 //
-//  ArekPopupData.swift
-//  Arek
+//  ArekBaseLocationDelegate.swift
+//  arek
 //
 //  Copyright (c) 2016 Ennio Masi
 //
@@ -24,17 +24,26 @@
 //
 
 import Foundation
+import CoreLocation
 
-public struct ArekPopupData {
-    var title: String!
-    var message: String!
-    var allowButtonTitle: String!
-    var denyButtonTitle: String!
+public class BaseLocationPermissionDelegate: NSObject, CLLocationManagerDelegate {
+    var locationManager: CLLocationManager = CLLocationManager()
+    
+    weak var permission: PermissionProtocol?
+    var completion: ArekPermissionResponse?
+    
+    public init(permission: PermissionProtocol, completion: @escaping ArekPermissionResponse) {
+        super.init()
+        self.completion = completion
+        self.permission = permission
+        self.locationManager.delegate = self
+    }
 
-    public init(title: String = "", message: String = "", allowButtonTitle: String = "", denyButtonTitle: String = "") {
-        self.title = title
-        self.message = message
-        self.allowButtonTitle = allowButtonTitle
-        self.denyButtonTitle = denyButtonTitle
+    public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        if let permission = self.permission {
+            permission.status(completion: { (status) in
+                if let completion = self.completion { completion(status) }
+            })
+        }
     }
 }

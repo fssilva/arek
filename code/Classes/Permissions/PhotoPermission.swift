@@ -1,5 +1,5 @@
 //
-//  ArekEvents.swift
+//  ArekPhoto.swift
 //  Arek
 //
 //  Copyright (c) 2016 Ennio Masi
@@ -24,44 +24,43 @@
 //
 
 import Foundation
-import EventKit
+import Photos
 
-open class ArekEvents: ArekBasePermission, ArekPermissionProtocol {
-    open var identifier: String = "ArekEvents"
+open class PhotoPermission: BasePermission, PermissionProtocol {
+    open var identifier: String = "PhotoPermission"
     
     public init() {
         super.init(identifier: self.identifier)
     }
     
-    public override init(configuration: ArekConfiguration? = nil, initialPopupData: ArekPopupData? = nil, reEnablePopupData: ArekPopupData? = nil) {
+    public override init(configuration: ArekConfiguration? = nil, initialPopupData: PopupAlertData? = nil, reEnablePopupData: PopupAlertData? = nil) {
         super.init(configuration: configuration, initialPopupData: initialPopupData, reEnablePopupData: reEnablePopupData)
     }
-    
+
     open func status(completion: @escaping ArekPermissionResponse) {
-            let status = EKEventStore.authorizationStatus(for: .event)
-            switch status {
-            case .authorized:
-                return completion(.authorized)
-            case .restricted, .denied:
-                return completion(.denied)
-            case .notDetermined:
-                return completion(.notDetermined)
-            }
+        switch PHPhotoLibrary.authorizationStatus() {
+        case .notDetermined:
+            return completion(.notDetermined)
+        case .restricted, .denied:
+            return completion(.denied)
+        case.authorized:
+            return completion(.authorized)
+        }
     }
-    
+        
     open func askForPermission(completion: @escaping ArekPermissionResponse) {
-            EKEventStore().requestAccess(to: .event) { granted, error in
-                if let error = error {
-                    print("[🚨 Arek 🚨] 📆 permission not determined 🤔, error \(error)")
-                    return completion(.notDetermined)
-                }
-                
-                if granted {
-                    print("[🚨 Arek 🚨] 📆 permission authorized by user ✅")
-                    return completion(.authorized)
-                }
-                print("[🚨 Arek 🚨] 📆 permission denied by user ⛔️")
+        PHPhotoLibrary.requestAuthorization { (status) in
+            switch status {
+            case .notDetermined:
+                print("[🚨 Arek 🚨] 🌅 permission not determined 🤔")
+                return completion(.notDetermined)
+            case .restricted, .denied:
+                print("[🚨 Arek 🚨] 🌅 permission denied by user ⛔️")
                 return completion(.denied)
+            case.authorized:
+                print("[🚨 Arek 🚨] 🌅 permission authorized by user ✅")
+                return completion(.authorized)
             }
+        }
     }
 }

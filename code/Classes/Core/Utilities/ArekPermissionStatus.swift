@@ -30,4 +30,5 @@ public enum ArekPermissionStatus: String {
     case denied
     case notDetermined
     case notAvailable
+    case provisional
 }

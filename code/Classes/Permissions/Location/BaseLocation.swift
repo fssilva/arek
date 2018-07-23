@@ -26,14 +26,14 @@
 import Foundation
 import CoreLocation
 
-public class ArekBaseLocation: ArekBasePermission, ArekPermissionProtocol {
+public class BaseLocation: BasePermission, PermissionProtocol {
     public var identifier: String = "ArekBaseLocation"
     var completion: ArekPermissionResponse? {
         willSet {
-            locationDelegate = ArekBaseLocationDelegate(permission: self, completion: newValue!)
+            locationDelegate = BaseLocationPermissionDelegate(permission: self, completion: newValue!)
         }
     }
-    private var locationDelegate: ArekBaseLocationDelegate?
+    private var locationDelegate: BaseLocationPermissionDelegate?
     
     public init() {
         super.init(identifier: self.identifier)
@@ -43,7 +43,7 @@ public class ArekBaseLocation: ArekBasePermission, ArekPermissionProtocol {
         super.init(identifier: identifier)
     }
     
-    public override init(configuration: ArekConfiguration? = nil, initialPopupData: ArekPopupData? = nil, reEnablePopupData: ArekPopupData? = nil) {
+    public override init(configuration: ArekConfiguration? = nil, initialPopupData: PopupAlertData? = nil, reEnablePopupData: PopupAlertData? = nil) {
         super.init(configuration: configuration, initialPopupData: initialPopupData, reEnablePopupData: reEnablePopupData)
     }
 

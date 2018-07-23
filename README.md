@@ -59,7 +59,7 @@ Every goal could be easily reached using **AREK**.
 
     permission.status { (status) in
         switch status {
-        case .authorized:
+        case .authorized, .provisional:
             print("! ✅ !")
         case .denied:
             print("! ⛔️ !" )
@@ -76,7 +76,7 @@ Every goal could be easily reached using **AREK**.
 
     permission.manage { (status) in
         switch status {
-        case .authorized:
+        case .authorized, .provisional:
             symbol = "✅"
         case .denied:
             symbol = "⛔️"
